@@ -65,3 +65,51 @@ func (h *userHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 
 }
+
+// func (h *userHandler) FetchUser(c *gin.Context) {
+// 	currentUser := c.MustGet("currentUser").(user.User)
+// 	formatter := user.FormatUser(currentUser, 11111)
+// 	response := helper.APIResponse("Successfuly fetch user data", http.StatusOK, "success", formatter)
+// 	c.JSON(http.StatusOK, response)
+// }
+
+func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
+	var input user.CheckEmailInput
+
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("email checking failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+	IsEmailAvailable, err := h.userService.IsEmailAvailable(input)
+	if err != nil {
+		errorMessage := gin.H{"errors": "Server error"}
+		response := helper.APIResponse("Email checking failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+	data := gin.H{
+		"is_available": IsEmailAvailable,
+	}
+	//cara pertama
+	var metaMessage string
+	if IsEmailAvailable {
+		metaMessage = "email is available"
+	} else {
+		metaMessage = "Email has been registered"
+	}
+	//cara kedua
+	// metaMessage := "Email has been registered"
+	// email sudah memiliki nilai string
+	// if IsEmailAvailable {
+	// 	metaMessage = "email is available"
+	// nilai email terganti dengan kata "email is available"
+	// }
+	response := helper.APIResponse(metaMessage, http.StatusOK, "success", data)
+	c.JSON(http.StatusOK, response)
+
+}
