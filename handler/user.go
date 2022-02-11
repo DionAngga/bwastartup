@@ -113,3 +113,7 @@ func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 
 }
+
+func (h *userHandler) UploadAvatar(c *gin.Context) {
+
+}

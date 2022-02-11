@@ -7,7 +7,9 @@ import (
 type Repository interface {
 	Save(user User) (User, error)
 	FindByEmail(email string) (User, error)
-	DeleteId(id int) (User, error)
+	// DeleteId(id int) (User, error)
+	FindbyID(ID int) (User, error)
+	Update(user User) (User, error)
 }
 
 type repository struct {
@@ -36,10 +38,28 @@ func (r *repository) FindByEmail(email string) (User, error) {
 	return user, nil
 }
 
-func (r *repository) DeleteId(id int) (User, error) {
+// func (r *repository) DeleteId(id int) (User, error) {
+// 	var user User
+
+// 	err := r.db.Where("id=?", id).Delete(&user).Error
+// 	if err != nil {
+// 		return user, err
+// 	}
+// 	return user, nil
+// }
+
+func (r *repository) FindbyID(ID int) (User, error) {
 	var user User
 
-	err := r.db.Where("id=?", id).Delete(&user).Error
+	err := r.db.Where("id=?", ID).Find(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+func (r *repository) Update(user User) (User, error) {
+	err := r.db.Save(&user).Error
 	if err != nil {
 		return user, err
 	}
