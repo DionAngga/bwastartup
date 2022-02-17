@@ -5,11 +5,11 @@ type UserFormatter struct {
 	Name       string `json:"name"`
 	Occupation string `json:"occupation"`
 	Email      string `json:"email"`
-	Token      int    `json:"token"`
+	Token      string `json:"token"`
 	ImageURL   string `json:"image_url"`
 }
 
-func FormatUser(user User, token int) UserFormatter {
+func FormatUser(user User, token string) UserFormatter {
 	formatter := UserFormatter{
 		ID:         user.ID,
 		Name:       user.Name,
