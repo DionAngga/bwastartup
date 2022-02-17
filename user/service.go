@@ -53,11 +53,11 @@ func (s *service) Login(input LoginInput) (User, error) {
 		return user, err
 	}
 	if user.ID == 0 {
-		return user, errors.New("no user found on that email")
+		return user, errors.New("email dan password Anda salah")
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
-		return user, err
+		return user, errors.New("email dan password Anda salah")
 	}
 	return user, nil
 }
