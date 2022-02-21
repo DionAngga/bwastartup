@@ -111,19 +111,19 @@ func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
 		"is_available": IsEmailAvailable,
 	}
 	//cara pertama
-	var metaMessage string
-	if IsEmailAvailable {
-		metaMessage = "email is available"
-	} else {
-		metaMessage = "Email has been registered"
-	}
-	//cara kedua
-	// metaMessage := "Email has been registered"
-	// email sudah memiliki nilai string
+	// var metaMessage string
 	// if IsEmailAvailable {
 	// 	metaMessage = "email is available"
-	// nilai email terganti dengan kata "email is available"
+	// } else {
+	// 	metaMessage = "Email has been registered"
 	// }
+	//cara kedua
+	metaMessage := "Email has been registered"
+	//email sudah memiliki nilai string
+	if IsEmailAvailable {
+		metaMessage = "email is available"
+		//nilai email terganti dengan kata "email is available"
+	}
 	response := helper.APIResponse(metaMessage, http.StatusOK, "success", data)
 	c.JSON(http.StatusOK, response)
 
@@ -139,10 +139,11 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 	//harusnya dapat JWT, tapi sabar :)
-	userID := 17
-	userName := "Avatar"
+	currentUser := c.MustGet("currentUser").(user.User)
+	userID := currentUser.ID
+	//userID := 17
 
-	path := fmt.Sprintf("images/%d-%s-%s", userID, userName, file.Filename)
+	path := fmt.Sprintf("images/%d-%s", userID, file.Filename)
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		data := gin.H{"is_uploaded": false}
@@ -160,8 +161,8 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 	data := gin.H{"is_uploaded": true}
-	respone := helper.APIResponse("Avatar successfuly uploaded", http.StatusOK, "success", data)
+	response := helper.APIResponse("Avatar successfuly uploaded", http.StatusOK, "success", data)
 
-	c.JSON(http.StatusOK, respone)
+	c.JSON(http.StatusOK, response)
 
 }
