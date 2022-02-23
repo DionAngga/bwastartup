@@ -2,6 +2,7 @@ package main
 
 import (
 	"bwastartup/auth"
+	"bwastartup/campaign"
 	"bwastartup/handler"
 	"bwastartup/helper"
 	"bwastartup/user"
@@ -17,49 +18,45 @@ import (
 )
 
 func main() {
-	dsn := "root:mysql123@tcp(127.0.0.1:3306)/bwastartup?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:@tcp(127.0.0.1:3306)/bwastartup?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
+	campaignRepository := campaign.NewRepository(db)
+	campaignService := campaign.NewService(campaignRepository)
+
+	campaigns, err := campaignRepository.FindByUserID(17)
+	fmt.Println("==========================================================")
+	fmt.Println(len(campaigns))
+	fmt.Println("==========================================================")
+
+	for _, campaign := range campaigns {
+		fmt.Println("==========================================================")
+		fmt.Println(campaign.Name)
+		if len(campaign.CampaignImages) > 0 {
+			fmt.Println("gambar: ")
+			fmt.Println(campaign.CampaignImages[0].FileName)
+		}
+		fmt.Println("==========================================================")
+	}
+
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
-	//fmt.Println(authService.GenerateToken(100))
-
-	// token, err := authService.ValidateToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyMH0.Hod7cMfrJ80_ZtkLb-z0SXgPHhL2-lah-hSgPe66Bf4")
-	// if err != nil {
-	// 	fmt.Println("==================================================")
-	// 	fmt.Println("======                                       =====")
-	// 	fmt.Println("======             ERROR                     =====")
-	// 	fmt.Println("======                                       =====")
-	// 	fmt.Println("==================================================")
-	// }
-	// if token.Valid {
-	// 	fmt.Println("==================================================")
-	// 	fmt.Println("======                                       =====")
-	// 	fmt.Println("======             VALID                     =====")
-	// 	fmt.Println("======                                       =====")
-	// 	fmt.Println("==================================================")
-	// } else {
-	// 	fmt.Println("==================================================")
-	// 	fmt.Println("======                                       =====")
-	// 	fmt.Println("======             INVALID                   =====")
-	// 	fmt.Println("======                                       =====")
-	// 	fmt.Println("==================================================")
-	// }
+	campaignHandler := handler.NewCampHandler(campaignService)
 
 	userHandler := handler.NewUserHandler(userService, authService)
 
 	router := gin.Default()
 	api := router.Group("/api/v1")
 
+	api.POST("/campaigns", campaignHandler.RegisterCamps)
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
-	//api.POST("/avatars", userHandler.UploadAvatar)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 	// api.GET("/users/fetch", authMiddleware(authService, usesService), userHandler.FetchUser)
 
