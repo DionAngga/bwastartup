@@ -25,35 +25,34 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	userRepository := user.NewRepository(db)
 	campaignRepository := campaign.NewRepository(db)
 	campaignService := campaign.NewService(campaignRepository)
 
-	campaigns, err := campaignRepository.FindByUserID(17)
-	fmt.Println("==========================================================")
-	fmt.Println(len(campaigns))
-	fmt.Println("==========================================================")
+	campaigns, _ := campaignService.FindCampaigns(20)
+	fmt.Println("Debug")
+	fmt.Println("Debug")
+	fmt.Println("Debug")
+	fmt.Println("banyaknya Campaign", len(campaigns))
 
 	for _, campaign := range campaigns {
-		fmt.Println("==========================================================")
-		fmt.Println(campaign.Name)
+		fmt.Println("nama campaign : ", campaign.Name)
 		if len(campaign.CampaignImages) > 0 {
-			fmt.Println("gambar: ")
-			fmt.Println(campaign.CampaignImages[0].FileName)
+			fmt.Println("Jumlah gambar : ", len(campaign.CampaignImages))
+			fmt.Println("nama image : ", campaign.CampaignImages[0].FileName)
 		}
-		fmt.Println("==========================================================")
 	}
 
-	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
-	campaignHandler := handler.NewCampHandler(campaignService)
+	//campaignHandler := handler.NewCampHandler(campaignService)
 
 	userHandler := handler.NewUserHandler(userService, authService)
 
 	router := gin.Default()
 	api := router.Group("/api/v1")
 
-	api.POST("/campaigns", campaignHandler.RegisterCamps)
+	//api.POST("/campaigns", campaignHandler.RegisterCamps)
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
