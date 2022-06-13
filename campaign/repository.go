@@ -18,12 +18,12 @@ func NewRepository(db *gorm.DB) *repository {
 }
 
 func (r *repository) FindAll() ([]Campaign, error) {
-	var camps []Campaign
-	err := r.db.Find(&camps).Preload("CampaignImages", "campaign_images.is_primary = 1").Error
+	var campaigns []Campaign
+	err := r.db.Find(&campaigns).Preload("CampaignImages", "campaign_images.is_primary = 1").Error
 	if err != nil {
-		return camps, err
+		return campaigns, err
 	}
-	return camps, nil
+	return campaigns, nil
 }
 
 func (r *repository) FindByUserID(id int) ([]Campaign, error) {
