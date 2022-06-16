@@ -4,36 +4,28 @@ import (
 	"bwastartup/campaign"
 	"bwastartup/helper"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type campsHandler struct {
-	campsService campaign.Service
+type campaignHandler struct {
+	service campaign.Service
 }
 
-func NewCampHandler(campsService campaign.Service) *campsHandler {
-	return &campsHandler{campsService}
+func NewCampaignHandler(service campaign.Service) *campaignHandler {
+	return &campaignHandler{service}
 }
 
-func (h *campsHandler) RegisterCamps(c *gin.Context) {
-	var input campaign.CampaignInput
+func (h *campaignHandler) GetCampaigns(c *gin.Context) {
+	userID, _ := strconv.Atoi(c.Query("user_id"))
 
-	err := c.ShouldBindJSON(&input)
+	campaigns, err := h.service.GetCampaigns(userID)
 	if err != nil {
-		errors := helper.FormatValidationError(err)
-		errorMessage := gin.H{"errors": errors}
-		response := helper.APIResponse("Account has been failed1", http.StatusUnprocessableEntity, "error", errorMessage)
-		c.JSON(http.StatusUnprocessableEntity, response)
-		return
-	}
-	newCamps, err := h.campsService.RegisterCampaign(input)
-	if err != nil {
-		response := helper.APIResponse("Account has been failed2", http.StatusBadRequest, "erorr", nil)
+		response := helper.APIResponse("Error to get campaigns", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	formatter := campaign.FormatCamps(newCamps)
-	response := helper.APIResponse("Account has been registered3", http.StatusOK, "success", formatter)
+	response := helper.APIResponse("List of campaigns", http.StatusOK, "success", campaigns)
 	c.JSON(http.StatusOK, response)
 }

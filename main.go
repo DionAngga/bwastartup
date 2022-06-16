@@ -27,39 +27,28 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	campaignRepository := campaign.NewRepository(db)
+
 	campaignService := campaign.NewService(campaignRepository)
-
-	campaigns, _ := campaignService.FindCampaigns(20)
-	fmt.Println("Debug")
-	fmt.Println("Debug")
-	fmt.Println("Debug")
-	fmt.Println("banyaknya Campaign", len(campaigns))
-
-	for _, campaign := range campaigns {
-		fmt.Println("nama campaign : ", campaign.Name)
-		if len(campaign.CampaignImages) > 0 {
-			fmt.Println("Jumlah gambar : ", len(campaign.CampaignImages))
-			fmt.Println("nama image : ", campaign.CampaignImages[0].FileName)
-		}
-	}
-
 	userService := user.NewService(userRepository)
-	authService := auth.NewService()
-	//campaignHandler := handler.NewCampHandler(campaignService)
 
+	authService := auth.NewService()
+
+	campaignHandler := handler.NewCampaignHandler(campaignService)
 	userHandler := handler.NewUserHandler(userService, authService)
 
 	router := gin.Default()
 	api := router.Group("/api/v1")
 
-	//api.POST("/campaigns", campaignHandler.RegisterCamps)
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
+
+	api.GET("/campaigns", campaignHandler.GetCampaigns)
 	// api.GET("/users/fetch", authMiddleware(authService, usesService), userHandler.FetchUser)
 
-	router.Run()
+	router.Run(":8081")
+
 }
 
 func authMiddleware(authService auth.Service, userService user.Service) gin.HandlerFunc {
