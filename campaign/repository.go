@@ -5,6 +5,7 @@ import "gorm.io/gorm"
 type Repository interface {
 	FindAll() ([]Campaign, error)
 	FindByUserID(id int) ([]Campaign, error)
+	FindByID(id int) (Campaign, error)
 	Delete(id int) (Campaign, error)
 	CreateCampaign(campaign Campaign) (Campaign, error)
 }
@@ -35,6 +36,16 @@ func (r *repository) FindByUserID(id int) ([]Campaign, error) {
 	return campaigns, nil
 }
 
+func (r *repository) FindByID(ID int) (Campaign, error) {
+	var campaign Campaign
+	err := r.db.Preload("User").Preload("CampaignImages").Where("id=?", ID).Find(&campaign).Error
+	if err != nil {
+		return campaign, err
+	}
+	return campaign, nil
+}
+
+//////////////////////////////////////////////////////////////
 func (r *repository) Delete(id int) (Campaign, error) {
 	var campaign Campaign
 	err := r.db.Where("id = ?", id).Delete(&campaign).Error
