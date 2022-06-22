@@ -7,6 +7,7 @@ type Repository interface {
 	FindByUserID(id int) ([]Campaign, error)
 	FindByID(id int) (Campaign, error)
 	Save(campaign Campaign) (Campaign, error)
+	Update(campaign Campaign) (Campaign, error)
 	///
 	Delete(id int) (Campaign, error)
 }
@@ -51,6 +52,15 @@ func (r *repository) Save(campaign Campaign) (Campaign, error) {
 	if err != nil {
 		return campaign, err
 	}
+	return campaign, nil
+}
+
+func (r *repository) Update(campaign Campaign) (Campaign, error) {
+	err := r.db.Save(&campaign).Error
+	if err != nil {
+		return campaign, err
+	}
+
 	return campaign, nil
 }
 
