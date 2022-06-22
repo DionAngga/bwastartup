@@ -30,7 +30,6 @@ func main() {
 
 	campaignService := campaign.NewService(campaignRepository)
 	userService := user.NewService(userRepository)
-
 	authService := auth.NewService()
 
 	campaignHandler := handler.NewCampaignHandler(campaignService)
@@ -47,6 +46,7 @@ func main() {
 
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
 	api.GET("/campaigns/:id", campaignHandler.GetCampaign)
+	api.POST("/campaigns", authMiddleware(authService, userService), campaignHandler.CreateCampaign)
 	// api.GET("/users/fetch", authMiddleware(authService, usesService), userHandler.FetchUser)
 
 _:
